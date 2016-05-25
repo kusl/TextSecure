@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -28,7 +29,7 @@ import org.thoughtcrime.securesms.crypto.MasterSecret;
 import org.thoughtcrime.securesms.util.Dialogs;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
-import org.whispersystems.textsecure.api.util.PhoneNumberFormatter;
+import org.whispersystems.signalservice.api.util.PhoneNumberFormatter;
 
 /**
  * The register account activity.  Prompts ths user for their registration information
@@ -118,6 +119,17 @@ public class RegistrationActivity extends BaseActionBarActivity {
           startActivityForResult(intent, PICK_COUNTRY);
         }
         return true;
+      }
+    });
+    this.countrySpinner.setOnKeyListener(new View.OnKeyListener() {
+      @Override
+      public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER && event.getAction() == KeyEvent.ACTION_UP) {
+          Intent intent = new Intent(RegistrationActivity.this, CountrySelectionActivity.class);
+          startActivityForResult(intent, PICK_COUNTRY);
+          return true;
+        }
+        return false;
       }
     });
   }

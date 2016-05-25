@@ -33,6 +33,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.view.WindowCompat;
@@ -134,9 +135,9 @@ import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.concurrent.AssertedSuccessListener;
 import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
-import org.whispersystems.libaxolotl.InvalidMessageException;
-import org.whispersystems.libaxolotl.util.guava.Optional;
-import org.whispersystems.textsecure.api.util.InvalidNumberException;
+import org.whispersystems.libsignal.InvalidMessageException;
+import org.whispersystems.libsignal.util.guava.Optional;
+import org.whispersystems.signalservice.api.util.InvalidNumberException;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -148,7 +149,7 @@ import ws.com.google.android.mms.ContentType;
 
 import static org.thoughtcrime.securesms.TransportOption.Type;
 import static org.thoughtcrime.securesms.database.GroupDatabase.GroupRecord;
-import static org.whispersystems.textsecure.internal.push.TextSecureProtos.GroupContext;
+import static org.whispersystems.signalservice.internal.push.SignalServiceProtos.GroupContext;
 
 /**
  * Activity for displaying a message thread, as well as
@@ -369,6 +370,14 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   @Override
+  public void startActivity(Intent intent) {
+    if (intent.getStringExtra(Browser.EXTRA_APPLICATION_ID) != null) {
+      intent.removeExtra(Browser.EXTRA_APPLICATION_ID);
+    }
+    super.startActivity(intent);
+  }
+
+  @Override
   public boolean onPrepareOptionsMenu(Menu menu) {
     MenuInflater inflater = this.getMenuInflater();
     menu.clear();
@@ -518,8 +527,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   private void handleInviteLink() {
     try {
       boolean a = SecureRandom.getInstance("SHA1PRNG").nextBoolean();
-      if (a) composeText.appendInvite(getString(R.string.ConversationActivity_lets_switch_to_signal, "http://sgnl.link/1LoIMUl"));
-      else   composeText.appendInvite(getString(R.string.ConversationActivity_lets_use_this_to_chat, "http://sgnl.link/1MF56H1"));
+      if (a) composeText.appendInvite(getString(R.string.ConversationActivity_lets_switch_to_signal, "https://sgnl.link/1LoIMUl"));
+      else   composeText.appendInvite(getString(R.string.ConversationActivity_lets_use_this_to_chat, "https://sgnl.link/1MF56H1"));
     } catch (NoSuchAlgorithmException e) {
       throw new AssertionError(e);
     }
@@ -1050,6 +1059,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   private void setMedia(Uri uri, MediaType mediaType) {
+    if (uri == null) return;
     attachmentManager.setMedia(masterSecret, uri, mediaType, getCurrentMediaConstraints());
   }
 
